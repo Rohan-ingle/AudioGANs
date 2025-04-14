@@ -136,4 +136,4 @@ AudioGANs is inspired by various GAN implementations and aims to offer a flexibl
 
 ---
 
-For additional details and updates, visit the [AudioGANs GitHub repository](https://github.com/Rohan-ingle/AudioGANs).
+Reference Paper [Arxiv](https://arxiv.org/abs/2305.15266).
