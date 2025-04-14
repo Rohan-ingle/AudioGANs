@@ -1,12 +1,27 @@
 #!/bin/bash
-# download_models.sh: Download Maestro and/or Musicnet models.
+# download_models.sh: Download Maestro and/or Musicnet models and install Python dependencies.
 
 # URLs for the models from Hugging Face
 MAESTRO_URL="https://huggingface.co/Eloimoliner/audio-inpainting-diffusion/resolve/main/maestro_22k_8s-750000.pt"
 MUSICNET_URL="https://huggingface.co/Eloimoliner/audio-inpainting-diffusion/resolve/main/musicnet_44k_4s-560000.pt"
 
-# Directory where the models will be saved (current directory)
+# Directory where the models will be saved
 DOWNLOAD_DIR="./models"
+
+# Function to install Python dependencies
+install_requirements() {
+    echo "Installing Python dependencies from requirements.txt..."
+    if [ -f "requirements.txt" ]; then
+        pip install -r requirements.txt
+        if [ $? -eq 0 ]; then
+            echo "Dependencies installed successfully."
+        else
+            echo "Error installing dependencies."
+        fi
+    else
+        echo "requirements.txt not found in the current directory."
+    fi
+}
 
 # Function to download the Maestro model
 download_maestro() {
@@ -35,6 +50,12 @@ usage() {
     echo "Usage: $0 [--maestro | --musicnet | --both]"
     exit 1
 }
+
+# Ensure the models directory exists
+mkdir -p "$DOWNLOAD_DIR"
+
+# Install Python dependencies
+install_requirements
 
 # Check if a command line argument is provided
 if [ "$#" -eq 1 ]; then
