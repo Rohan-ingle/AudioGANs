@@ -1,12 +1,13 @@
 # AudioGANs
 
-AudioGANs is a modular and configurable framework for training Generative Adversarial Networks (GANs) on audio data. It supports various GAN architectures and is designed for flexibility, ease of experimentation, and interactive demos. This repository now includes a **Music Inpainting Demo** powered by Streamlit.
+AudioGANs is a modular and configurable framework for training Generative Adversarial Networks (GANs) on audio data. It supports various GAN architectures and is designed for flexibility, ease of experimentation, and interactive demos. This repository now includes a **Music Inpainting Demo** powered by Streamlit and a **Telegram Bot Interface**.
 
 ## Features
 
 - **Modular Architecture**: Easily switch between different GAN models.
 - **Configurable Training**: Customize training parameters via YAML configuration files.
 - **Interactive Demo**: Run a Music Inpainting demo using Streamlit, allowing interactive checkpoint selection, noise level adjustment, and audio upload.
+- **Telegram Bot**: Interact with the inpainting model via Telegram by sending WAV files.
 - **Deployment & Inference**: Scripts available for deploying trained models on audio inputs.
 - **Dependency Management**: A script to install required libraries and download pretrained weights from Hugging Face.
 
@@ -14,13 +15,14 @@ AudioGANs is a modular and configurable framework for training Generative Advers
 
 ```
 AudioGANs/
-├── architecture/             # Contains different GAN model architectures (e.g., Unet_CQT_oct_with_attention)
-├── configs/                  # YAML configuration files for various checkpoints (e.g., musicnet.yaml, maestro.yaml)
-├── defaults/                 # Default assets (e.g., default WAV files used when no input is provided)
-├── dependencies.sh           # Installs Python dependencies and downloads pretrained weights
-├── run.sh                    # Shell script to launch the Streamlit demo (runs deploy.py)
-├── deploy.py                 # Streamlit application for Music Inpainting demo
-├── requirements.txt          # List of required Python packages
+├── architecture/             # Contains different GAN model architectures
+├── configs/                  # YAML configuration files
+├── defaults/                 # Default assets (e.g., sample WAV files)
+├── dependencies.sh           # Install Python dependencies and download weights
+├── run.sh                    # Launches Streamlit demo
+├── deploy.py                 # Streamlit Music Inpainting demo
+├── telegram_bot.py           # Telegram bot implementation
+├── requirements.txt          # Python dependencies list
 ├── LICENSE                   # MIT License
 └── README.md                 # Project documentation
 ```
@@ -32,108 +34,78 @@ AudioGANs/
 - Python 3.7 or higher
 - PyTorch 1.7 or higher
 - Additional dependencies listed in `requirements.txt`
-- [Streamlit](https://streamlit.io/) (for running the demo)
+- [Streamlit](https://streamlit.io/) (for demo)
+- [python-telegram-bot](https://github.com/python-telegram-bot/python-telegram-bot) (for bot)
 
 ### Installation
 
-1. **Clone the Repository**:
-
-    ```bash
-    git clone https://github.com/Rohan-ingle/AudioGANs.git
-    cd AudioGANs
-    ```
-
-2. **Install Dependencies and Download Pretrained Weights**:
-
-    Run the `dependencies.sh` script to install all required Python libraries and download the necessary pretrained weights from Hugging Face.
-
-    ```bash
-    bash dependancies.sh
-    ```
-
-## Usage
-
-### Running the Music Inpainting Demo
-
-The repository includes a demo that lets you inpaint (restore masked sections of) audio files using a trained GAN model. To run the demo:
-
-1. **Launch the Streamlit Application using `run.sh`**:
-
-    ```bash
-    bash run.sh
-    ```
-
-    This script runs the Streamlit application (via `deploy.py`), which will open a new browser window displaying the Music Inpainting Demo.
-
-2. **Demo Interface Overview**:
-
-    - **Model & Configuration Selection**:  
-      Use the sidebar to select a checkpoint (e.g., `musicnet_44k_4s-560000.pt` or `maestro_22k_8s-750000.pt`). The corresponding configuration file (either `musicnet.yaml` or `maestro.yaml`) is chosen automatically.
-
-    - **Noise Level Adjustment**:  
-      Adjust the noise level (sigma) for the inpainting process with a slider.
-
-    - **Audio Input**:  
-      Upload a WAV file or use the default audio sample (located in the `defaults` folder).
-
-    - **Inpainting Process**:  
-      Click the "Run Inpainting" button. The demo will:
-        - Load and preprocess the input audio.
-        - Generate a spectrogram and mask its central portion.
-        - Perform inpainting on the masked spectrogram using the GAN model.
-        - Reconstruct and output the inpainted audio, with options to play and download the result.
-
-### Training a Model
-
-If you wish to train a model, modify the YAML configuration files in the `configs/` directory to adjust training parameters (e.g., learning rate, batch size, number of epochs). (Note: The current focus of the repository is on the inpainting demo. Training scripts and details will be provided separately.)
-
-### Deploying a Trained Model
-
-For non-interactive deployment, you can also run the deployment script directly:
-
 ```bash
-python deploy.py --model_path path_to_trained_model --input_audio path_to_input_audio --output_path path_to_save_output
+git clone https://github.com/Rohan-ingle/AudioGANs.git
+cd AudioGANs
+bash dependencies.sh
 ```
 
-This processes the input audio using a trained GAN model and saves the output at the designated location.
+### Verify Installation
 
-## Code Walkthrough
+```bash
+bash verify.sh
+```
 
-The main functionalities in the Streamlit demo (inside `deploy.py`) include:
+## Running the Music Inpainting Demo (Streamlit)
 
-- **Configuration Loading**:  
-  The app reads YAML configuration files from `configs/` and converts nested dictionaries into `SimpleNamespace` objects for simpler attribute access.
+```bash
+bash run.sh
+```
 
-- **Model Initialization**:  
-  Based on the selected checkpoint, the relevant model architecture (for example, located in `architecture/unet_cqt_oct_with_projattention_adaLN_2.py`) is imported, and the model is loaded with pretrained weights.
+This opens the demo in a browser where you can:
 
-- **Audio Preprocessing**:  
-  Uses `torchaudio` to load and resample the audio if needed, ensuring the input is mono and matches the expected length through trimming or padding.
+- Choose a checkpoint (e.g., `musicnet_44k_4s-560000.pt`)
+- Set noise level (sigma)
+- Upload a WAV file or use the default
+- Click **Run Inpainting** to see results
 
-- **Spectrogram Masking and Inpainting**:  
-  The app generates a spectrogram from the audio, masks its central portion, and then performs inpainting using the GAN model, controlled by a user-specified noise level (sigma).
+## Using the Telegram Bot
 
-- **Result Generation**:  
-  The inpainted audio is reconstructed and provided through the Streamlit interface, with options for playback and download.
+### Setup
 
-## Customization
+1. Create a `.env` file in the root directory:
 
-### Adding a New GAN Architecture
+```dotenv
+TOKEN=your_telegram_bot_token_here
+```
 
-1. **Create a New Model File**:  
-   Place your new model architecture as a Python file within the `architecture/` directory.
+2. Run the bot:
 
-2. **Update Configuration**:  
-   Provide a corresponding YAML configuration file in the `configs/` directory with model-specific parameters.
+```bash
+python telegram_bot.py
+```
+
+### Interacting with the Bot
+
+- Start with `/start` for instructions
+- Use `/inpaint [checkpoint] [sigma]` (e.g., `/inpaint musicnet 0.5`)
+- Send a `.wav` file or voice message
+- Bot replies with the inpainted audio
+
+## Bot Code Highlights
+
+- Loads token securely from `.env`
+- Uses `torchaudio`, `soundfile`, and PyTorch
+- Supports `musicnet` and `maestro` checkpoints
+- Auto-pads or trims audio to model's required length
+
+## Model Architecture Support
+
+To add new models:
+
+1. Place model file in `architecture/`
+2. Add YAML config to `configs/`
+3. Adjust `run_inpainting()` to use new architecture
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+MIT License. See the [LICENSE](LICENSE) file.
 
 ## Acknowledgments
 
-AudioGANs is inspired by various GAN implementations and aims to offer a flexible platform for audio-based GAN research and development.
-
----
-
-Reference Paper [Arxiv](https://arxiv.org/abs/2305.15266).
+Inspired by state-of-the-art GAN audio models. Paper: [Arxiv](https://arxiv.org/abs/2305.15266).
