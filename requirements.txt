@@ -4,3 +4,4 @@ PyYAML
 streamlit
 omegaconf
 soundfile
+python-telegram-bot
