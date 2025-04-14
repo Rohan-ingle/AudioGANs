@@ -45,7 +45,7 @@ AudioGANs/
 
 2. **Install Dependencies and Download Pretrained Weights**:
 
-    Run the `dependancies.sh` script to install all required Python libraries and download the necessary pretrained weights from Hugging Face.
+    Run the `dependencies.sh` script to install all required Python libraries and download the necessary pretrained weights from Hugging Face.
 
     ```bash
     bash dependancies.sh
